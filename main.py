@@ -1,18 +1,30 @@
-import matplotlib.pyplot as plt
 import numpy as np
+from os import system
 
 #import other program files
 import loads
 import reactions
 import supports
 
-beamLength = int(input("Enter beam length (m) "))
+_ = system('cls')
 
-supportsArray = supports.getSupports()
+cl = int(input("Enter beam length (m) "))
 
-loadsArray = np.array(loads.getLoads())
+supports_array = np.array(supports.get_supports())
 
-loadsArray = np.vectorize(loads.findCentroid_Force)(loadsArray)
+loads_array = np.array(loads.get_loads())
 
-supportsArray = reactions.solveReactions(supportsArray, loadsArray)
+loads_array = np.vectorize(loads.find_centroid_force)(loads_array)
 
+supports_array = reactions.solve_reactions(supports_array, loads_array)
+
+print(f"support A force: {supports_array[0].force}")
+print(f"support A moment: {supports_array[0].moment}")
+
+if supports_array.size > 1: 
+    print(f"support B force: {supports_array[1].force}")
+    print(f"support B moment: {supports_array[1].moment}")
+else:
+    print("no support B")
+
+exit()

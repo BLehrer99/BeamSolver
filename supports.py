@@ -1,21 +1,20 @@
-def getSupports():
-    supportsArray = []
-    supportType = input("Enter support type ('simply supported' or 'fixed') ").lower()
-    if supportType == "simply supported ":
-        supportALoc = eval(input("Enter the location of support A (m) "))
-        supportBLoc = eval(input("Enter the location of support B (m) "))
+def get_supports():
+    supports_array = []
+    support_type = input("Enter support type ('simply supported' or 'fixed') ").lower()
+    if support_type == "simply supported":
+        support_a_loc = eval(input("Enter the location of support A (m) "))
+        support_b_loc = eval(input("Enter the location of support B (m) "))
         #create new pair of pinned/roller supports
-        supportsArray.append(Support(supportALoc, "pinned"))
-        supportsArray.append(Support(supportBLoc, "pinned"))
-        return supportsArray
+        supports_array.append(Support(support_a_loc, "pinned"))
+        supports_array.append(Support(support_b_loc, "pinned"))
+        return supports_array
 
-    elif supportType == "cantilever" or supportType == "fixed":
-        supportsArray.append(Support(0, "fixed"))
-        return supportsArray
+    if support_type == "cantilever" or support_type == "fixed":
+        supports_array.append(Support(0, "fixed"))
+        return supports_array
 
-    else:
-        print("Error - unknown input ")
-        getSupports()
+    print("error in supports.get_supports(): unknown input ")
+    get_supports()
 
 class Support:
     force = 0
