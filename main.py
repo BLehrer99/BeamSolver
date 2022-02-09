@@ -18,6 +18,8 @@ loads_array = np.vectorize(loads.find_centroid_force)(loads_array)
 
 supports_array = reactions.solve_reactions(supports_array, loads_array)
 
+#print reaction forces
+print("\nReaction Forces:")
 print(f"support A force: {supports_array[0].force}")
 print(f"support A moment: {supports_array[0].moment}")
 
