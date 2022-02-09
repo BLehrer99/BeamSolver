@@ -1,12 +1,9 @@
 def getLoads():
     userInput = "new load"
     loadsArray = []
-    while(1):
+    while(userInput != "end"):
         userInput = input("Enter load type or 'end' once all forces are inputted ('moment', 'point', 'distributed', 'ramp') ")
-        
-        if userInput == "end":
-            return loadsArray
-
+         
         if userInput == "moment":
             location = eval(input("Enter moment location (m) "))
             magnitude = eval(input("Enter the magnitude of the moment (Nm, clockwise is positive) "))
@@ -36,30 +33,35 @@ def getLoads():
 
         print("Unknown load type ")
 
-def findCentroid_Force(loadsArray = []):
-    for i in loadsArray:
-        if loadsArray[i].type == "moment":
-            loadsArray[i].centroid = loadsArray[i].startLoc
-            continue
+    return loadsArray
 
-        if loadsArray[i].type == "point":
-            loadsArray[i].centroid = loadsArray[i].startLoc
-            loadsArray[i].force = loadsArray[i].startMag
-            continue
-        
-        if loadsArray[i].type == "distributed":
-            loadsArray[i].centroid = (loadsArray[i].endLoc + loadsArray[i].startLoc)/2
-            loadsArray[i].force = (loadsArray[i].endLoc - loadsArray[i].startLoc) * loadsArray[i].startMag
-            continue
-        
-        if loadsArray[i].type == "ramp":
-            if loadsArray[i].startMag < loadsArray[i].endMag:
-                loadsArray[i].centroid = loadsArray[i].startLoc + 2*(loadsArray[i].endLoc - loadsArray[i].startLoc)/3
-            else:
-                loadsArray[i].centroid = loadsArray[i].startLoc + (loadsArray[i].endLoc - loadsArray[i].startLoc)/3
 
-            loadsArray[i].force = ((loadsArray[i].endLoc - loadsArray[i].startLoc) * loadsArray[i].startMag) + ((loadsArray[i].endMag - loadsArray[i].startMag) * (loadsArray[i].endLoc - loadsArray[i].startLoc) / 2)
-            continue
+def findCentroid_Force(load):
+    if load.type == "moment":
+        load.centroid = load.startLoc
+        return load
+
+    if load.type == "point":
+        load.centroid = load.startLoc
+        load.force = load.startMag
+        return load
+    
+    if load.type == "distributed":
+        load.centroid = (load.endLoc + load.startLoc)/2
+        load.force = (load.endLoc - load.startLoc) * load.startMag
+        return load
+    
+    if load.type == "ramp":
+        if load.startMag < load.endMag:
+            load.centroid = load.startLoc + 2 * (load.endLoc - load.startLoc) / 3
+        else:
+            load.centroid = load.startLoc + (load.endLoc - load.startLoc) / 3
+
+        load.force = ((load.endLoc - load.startLoc) * load.startMag) + ((load.endMag - load.startMag) * (load.endLoc - load.startLoc) / 2)
+        return load
+    
+    print("error in loads.findCentroid_Force()")
+    exit()
 
 class Load:
     centroid = 0
