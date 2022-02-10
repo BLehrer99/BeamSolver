@@ -28,7 +28,9 @@ def get_loads():
             endLoc = eval(input("Enter ramp force end location (m) "))
             startMag = eval(input("Enter the start magnitude of the ramp force (N, up is positive) "))
             endMag = eval(input("Enter the end magnitude of the ramp force (N, up is positive) "))
-            loads_array.append(Load("distributed", startLoc, endLoc, startMag, endMag, 0))
+
+            loads_array.append(Load("distributed", startLoc, endLoc, startMag, 0, 0))
+            loads_array.append(Load("ramp", startLoc, endLoc, 0, endMag-startMag, 0))
             continue
 
         if user_input != "end": print("Unknown load type ")
@@ -64,12 +66,12 @@ class Load:
             return
         
         if self.type == "ramp":
-            if self.start_mag < self.end_mag:
+            if self.start_mag > self.end_mag:
                 self.centroid = self.start_loc + 2 * (self.end_loc - self.start_loc) / 3
             else:
                 self.centroid = self.start_loc + (self.end_loc - self.start_loc) / 3
 
             self.force = ((self.end_loc - self.start_loc) * self.start_mag) + ((self.end_mag - self.start_mag) * (self.end_loc - self.start_loc) / 2)
             return
-            
+
         return
