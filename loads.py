@@ -35,34 +35,6 @@ def get_loads():
 
     return loads_array
 
-
-def find_centroid_force(load):
-    if load.type == "moment":
-        load.centroid = load.start_loc
-        return load
-
-    if load.type == "point":
-        load.centroid = load.start_loc
-        load.force = load.start_mag
-        return load
-    
-    if load.type == "distributed":
-        load.centroid = (load.end_loc + load.start_loc)/2
-        load.force = (load.end_loc - load.start_loc) * load.start_mag
-        return load
-    
-    if load.type == "ramp":
-        if load.start_mag < load.end_mag:
-            load.centroid = load.start_loc + 2 * (load.end_loc - load.start_loc) / 3
-        else:
-            load.centroid = load.start_loc + (load.end_loc - load.start_loc) / 3
-
-        load.force = ((load.end_loc - load.start_loc) * load.start_mag) + ((load.end_mag - load.start_mag) * (load.end_loc - load.start_loc) / 2)
-        return load
-    
-    print("error in loads.find_centroid_force(): load type not recognized")
-    exit()
-
 class Load:
     centroid = 0
     force = 0
@@ -75,3 +47,29 @@ class Load:
         self.start_mag = start_mag
         self.end_mag = end_mag
         self.moment = moment
+
+    def find_centroid_force(self):
+        if self.type == "moment":
+            self.centroid = self.start_loc
+            return
+
+        if self.type == "point":
+            self.centroid = self.start_loc
+            self.force = self.start_mag
+            return
+        
+        if self.type == "distributed":
+            self.centroid = (self.end_loc + self.start_loc)/2
+            self.force = (self.end_loc - self.start_loc) * self.start_mag
+            return
+        
+        if self.type == "ramp":
+            if self.start_mag < self.end_mag:
+                self.centroid = self.start_loc + 2 * (self.end_loc - self.start_loc) / 3
+            else:
+                self.centroid = self.start_loc + (self.end_loc - self.start_loc) / 3
+
+            self.force = ((self.end_loc - self.start_loc) * self.start_mag) + ((self.end_mag - self.start_mag) * (self.end_loc - self.start_loc) / 2)
+            return
+            
+        return
