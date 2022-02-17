@@ -1,40 +1,42 @@
+import global_functions
+
 def get_loads():
     user_input = "new load"
     loads_array = []
     while(user_input != "end"):
-        user_input = input("Enter load type or 'end' once all forces are inputted ('moment', 'point', 'distributed', 'ramp') ")
+        user_input = input("enter load type or 'end' once all forces are inputted ('moment', 'point', 'distributed', 'ramp') ")
          
         if user_input == "moment":
-            location = eval(input("Enter moment location (m) "))
-            magnitude = eval(input("Enter the magnitude of the moment (Nm, clockwise is positive) "))
+            location = eval(input("enter moment location (m) "))
+            magnitude = eval(input("enter the magnitude of the moment (Nm, clockwise is positive) "))
             loads_array.append(Load("moment", location, 0, 0, 0, magnitude))
             continue
         
         if user_input == "point":
-            location = eval(input("Enter point force location (m) "))
-            magnitude = eval(input("Enter the magnitude of the point force (N, up is positive) "))
+            location = eval(input("enter point force location (m) "))
+            magnitude = eval(input("enter the magnitude of the point force (N, up is positive) "))
             loads_array.append(Load("point", location, 0, magnitude, 0, 0))
             continue
 
         if user_input == "distributed":
-            startLoc = eval(input("Enter distributed force start location (m) "))
-            endLoc = eval(input("Enter distributed force end location (m) "))
-            magnitude = eval(input("Enter the magnitude of the distributed force (N/m, up is positive) "))
+            startLoc = eval(input("enter distributed force start location (m) "))
+            endLoc = eval(input("enter distributed force end location (m) "))
+            magnitude = eval(input("enter the magnitude of the distributed force (N/m, up is positive) "))
             loads_array.append(Load("distributed", startLoc, endLoc, magnitude, 0, 0))
             continue
 
         if user_input == "ramp":
-            startLoc = eval(input("Enter ramp force start location (m) "))
-            endLoc = eval(input("Enter ramp force end location (m) "))
-            startMag = eval(input("Enter the start magnitude of the ramp force (N, up is positive) "))
-            endMag = eval(input("Enter the end magnitude of the ramp force (N, up is positive) "))
+            startLoc = eval(input("enter ramp force start location (m) "))
+            endLoc = eval(input("enter ramp force end location (m) "))
+            startMag = eval(input("enter the start magnitude of the ramp force (N, up is positive) "))
+            endMag = eval(input("enter the end magnitude of the ramp force (N, up is positive) "))
 
             #break ramp load into a distributed overlayed with a ramp
             loads_array.append(Load("distributed", startLoc, endLoc, startMag, 0, 0))
             loads_array.append(Load("ramp", startLoc, endLoc, 0, endMag-startMag, 0))
             continue
 
-        if user_input != "end": print("Unknown load type ")
+        if user_input != "end": print("unknown load type ")
 
     return loads_array
 
@@ -73,3 +75,29 @@ class Load:
             return
 
         return
+
+    def load_at_point(self, x):
+        if self.type == "moment":
+            return self.moment * global_functions.macaulay(x, self.start_loc, -2)
+        if self.type == "point":
+            return self.start_mag * global_functions.macaulay(x, self.start_loc, -1)
+        if self.type == "distributed":
+            return self.start_mag * global_functions.macaulay(x, self.start_loc, 0) - self.start_mag * global_functions.macaulay(x, self.end_loc, 0)
+        
+    def shear_at_point(self, x):
+        if self.type == "moment":
+            return self.moment * global_functions.macaulay(x, self.start_loc, -1)
+        if self.type == "point":
+            return self.start_mag * global_functions.macaulay(x, self.start_loc, 0)
+        if self.type == "distributed":
+            return self.start_mag * global_functions.macaulay(x, self.start_loc, 1) - self.start_mag * global_functions.macaulay(x, self.end_loc, 1)
+
+    def moment_at_point(self, x):
+        if self.type == "moment":
+            return self.moment * global_functions.macaulay(x, self.start_loc, 0)
+        if self.type == "point":
+            return self.start_mag * global_functions.macaulay(x, self.start_loc, 1)
+        if self.type == "distributed":
+            return self.start_mag * 0.5 * global_functions.macaulay(x, self.start_loc, 2) - self.start_mag * 0.5 * global_functions.macaulay(x, self.end_loc, 2)
+
+

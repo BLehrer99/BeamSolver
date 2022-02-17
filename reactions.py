@@ -19,12 +19,12 @@ def solve_reactions(supports_array = [], loads_array = []):
 
     if supports_array[0].type == "pinned":
         #sum moments about support a
-        offset = -supports_array[0].xLoc
+        offset = -supports_array[0].x_loc
         sum_moments = 0
         for load in loads_array:
             sum_moments += load.moment
             sum_moments -= load.force * (load.centroid + offset)
-        supports_array[1].force = sum_moments / (supports_array[1].xLoc + offset)
+        supports_array[1].force = sum_moments / (supports_array[1].x_loc + offset)
 
         #sum forces
         sum_forces = supports_array[1].force
