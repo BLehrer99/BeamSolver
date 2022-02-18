@@ -32,7 +32,7 @@ for load in loads_array: load.find_centroid_force()
 supports_array = reactions.solve_reactions(supports_array, loads_array)
 
 #print reaction forces
-print("\nreaction Forces:")
+print("\nreaction forces:")
 print(f"support A force: {supports_array[0].force} N")
 print(f"support A moment: {supports_array[0].moment} Nm")
 
@@ -43,23 +43,26 @@ else:
     print("no support B")
 
 #ask user for point to consider conditions at
-STEP = 0.0001
-shear_force, bending_moment, x_v, x_m, is_mag = global_functions.find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP)
+STEP = 0.00001
+shear_force, bending_moment, x_v, x_m = global_functions.find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP)
 if x_v <= STEP: x_v = 0.0
-print("\nbending Moments & Shear Forces:")
+print("\nbending moments & shear forces:")
 
 #fix some annoying rounding things using weird math
-round_shear_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(shear_force)) - 1
+round_shear_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(shear_force))) - 1
 shear_force = round(shear_force, round_shear_to)
 
-round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(bending_moment)) - 1
+round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10((bending_moment))) - 1
 bending_moment = round(bending_moment, round_moment_to)
 
-print(f"{is_mag}shear force at point {x_v} m: {shear_force} N")
-print(f"{is_mag}bending moment at point {x_m} m: {bending_moment} Nm")
+print(f"shear force at point {x_v} m: {shear_force} N")
+print(f"bending moment at point {x_m} m: {bending_moment} Nm")
+print("\n")
 
 #ask about moments of inertia/cross sections
-global_functions.calculate_stesses(shear_force, bending_moment)
+shear_stress, normal_stress = global_functions.calculate_stresses(shear_force, bending_moment)
+print(f"shear stress on inner edge at point {x_v} m: {shear_stress} Pa")
+print(f"normal stress at top of beam at point {x_m} m: {normal_stress} Pa")
 
 print("\n")
 exit()
