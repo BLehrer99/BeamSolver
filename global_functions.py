@@ -53,7 +53,7 @@ def find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP):
         v_x, m_x = solve_singularity(x_v)
         
     else:
-        print("error in golbal_functions.find_shear_moment(): unknown input")
+        print("error in global_functions.find_shear_moment(): unknown input")
         return find_shear_moment(loads_array, supports_array, BEAM_LENGTH)
     
     return v_x, m_x, x_v, x_m
