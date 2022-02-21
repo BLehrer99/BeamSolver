@@ -52,7 +52,7 @@ print("\nbending moments & shear forces:")
 round_shear_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(shear_force))) - 1
 shear_force = round(shear_force, round_shear_to)
 
-round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10((bending_moment))) - 1
+round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(bending_moment))) - 1
 bending_moment = round(bending_moment, round_moment_to)
 
 print(f"shear force at point {x_v} m: {shear_force} N")
