@@ -25,42 +25,52 @@ print("\n")
 supports_array = supports.get_supports()
 
 print("\n")
-loads_array = loads.get_loads()
+loads_array, torques_array = loads.get_loads()
 
 for load in loads_array: load.find_centroid_force()
 
-supports_array = reactions.solve_reactions(supports_array, loads_array)
+supports_array = reactions.solve_reactions(supports_array, loads_array, torques_array)
 
 #print reaction forces
 print("\nreaction forces:")
 print(f"support A force: {supports_array[0].force} N")
 print(f"support A moment: {supports_array[0].moment} Nm")
+print(f"support A torque: {supports_array[0].torque} Nm")
 
 if len(supports_array) > 1: 
     print(f"support B force: {supports_array[1].force} N")
     print(f"support B moment: {supports_array[1].moment} Nm")
+    print(f"support B torque: support b cannot support a torque")
 else:
     print("no support B")
 
 #ask user for point to consider conditions at
 STEP = 0.00001
-shear_force, bending_moment, x_v, x_m = global_functions.find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP)
+shear_force, bending_moment, T, x_v, x_m, x_t = global_functions.find_shear_moment(loads_array, supports_array, torques_array, BEAM_LENGTH, STEP)
 if x_v <= STEP: x_v = 0.0
 print("\nbending moments & shear forces:")
 
 #fix some annoying rounding things using weird math
-round_shear_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(shear_force))) - 1
-shear_force = round(shear_force, round_shear_to)
+if shear_force != 0:
+    round_shear_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(shear_force))) - 1
+    shear_force = round(shear_force, round_shear_to)
 
-round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(bending_moment))) - 1
-bending_moment = round(bending_moment, round_moment_to)
+if bending_moment != 0:
+    round_moment_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(bending_moment))) - 1
+    bending_moment = round(bending_moment, round_moment_to)
+
+if T != 0:
+    round_torque_to = math.ceil(abs(math.log10(STEP))) - math.ceil(math.log10(abs(T))) - 1
+    T = round(T, round_torque_to)
+
 
 print(f"shear force at point {x_v} m: {shear_force} N")
 print(f"bending moment at point {x_m} m: {bending_moment} Nm")
+print(f"torque at point {x_t} m: {T} Nm")
 print("\n")
 
 #ask about moments of inertia/cross sections
-shear_stress, normal_stress = global_functions.calculate_stresses(shear_force, bending_moment)
+shear_stress, normal_stress = global_functions.calculate_stresses(shear_force, bending_moment, T)
 print(f"shear stress on inner edge at point {x_v} m: {shear_stress} Pa")
 print(f"normal stress at top of beam at point {x_m} m: {normal_stress} Pa")
 

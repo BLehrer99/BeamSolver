@@ -21,6 +21,7 @@ def get_supports():
 class Support:
     force = 0
     moment = 0
+    torque = 0
 
     def __init__(self, x, type):
         self.x_loc = x

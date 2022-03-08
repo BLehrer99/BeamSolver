@@ -3,8 +3,10 @@ import global_functions
 def get_loads():
     user_input = "new load"
     loads_array = []
+    torques_array = []
+
     while(user_input != "end"):
-        user_input = input("enter load type or 'end' once all forces are inputted ('moment', 'point', 'distributed', 'ramp') ")
+        user_input = input("enter load type or 'end' once all forces are inputted ('moment', 'point', 'distributed', 'torque' (fixed only)) ")
          
         if user_input == "moment":
             location = eval(input("enter moment location (m) "))
@@ -25,6 +27,12 @@ def get_loads():
             loads_array.append(Load("distributed", startLoc, endLoc, magnitude, 0, 0))
             continue
 
+        if user_input == "torque":
+            location = eval(input("enter torque location (m) "))
+            magnitude = eval(input("enter the magnitude of the torque (N/m, right hand rule about x-axis) "))
+            torques_array.append(Torque(location, magnitude))
+            continue
+
         if user_input == "ramp":
             startLoc = eval(input("enter ramp force start location (m) "))
             endLoc = eval(input("enter ramp force end location (m) "))
@@ -38,7 +46,7 @@ def get_loads():
 
         if user_input != "end": print("unknown load type ")
 
-    return loads_array
+    return loads_array, torques_array
 
 class Load:
     centroid = 0
@@ -100,4 +108,11 @@ class Load:
         if self.type == "distributed":
             return self.start_mag * 0.5 * global_functions.macaulay(x, self.start_loc, 2) - self.start_mag * 0.5 * global_functions.macaulay(x, self.end_loc, 2)
 
+class Torque:
+    location = 0
+    magnitude = 0
+
+    def __init__(self, location, magnitude):
+        self.location = location
+        self.magnitude = magnitude
 

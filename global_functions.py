@@ -1,12 +1,14 @@
 import numpy as np
 
-def find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP):
+def find_shear_moment(loads_array, supports_array, torques_array, BEAM_LENGTH, STEP):
     user_input = input("\nenter point to consider conditions at (m), 'max', 'min', or 'mag' to determine their respective locations ")
 
     x_v = 0.0
     x_m = 0.0
     v_x = 0.0
     m_x = 0.0
+    x_t = 0.0
+    t_x = 0.0
 
     def solve_singularity(loc):
         v_x = 0.0
@@ -17,46 +19,77 @@ def find_shear_moment(loads_array, supports_array, BEAM_LENGTH, STEP):
         for support in supports_array: m_x += support.moment_at_point(loc)
         return v_x, m_x
 
+    def torque(loc):
+        T = 0.0
+        for torque in torques_array:
+            if torque.location <= loc:
+                T -= torque.magnitude
+        T -= supports_array[0].torque
+        return T
+
     if user_input == "max":
         for i in np.arange(0.0, BEAM_LENGTH, STEP):
             shear, moment = solve_singularity(i)
+            T = torque(i)
             if shear > v_x:
                 v_x = shear
-                x_v = i    
+                x_v = i
             if moment > m_x:
                 m_x = moment
                 x_m = i
+            if T > t_x:
+                t_x = T
+                x_t = i
 
     elif user_input == "min":
         for i in np.arange(0.0, BEAM_LENGTH, STEP):
             shear, moment = solve_singularity(i)
+            T = torque(i)
             if shear < v_x:
                 v_x = shear
                 x_v = i    
             if moment < m_x:
                 m_x = moment
                 x_m = i
+            if T < t_x:
+                t_x = T
+                x_t = i
 
     elif user_input == "mag":
         for i in np.arange(0.0, BEAM_LENGTH, STEP):
             shear, moment = solve_singularity(i)
+            T = torque(i)
             if abs(shear) > abs(v_x):
                 v_x = shear
                 x_v = i    
             if abs(moment) > abs(m_x):
                 m_x = moment
                 x_m = i
+            if abs(T) > abs(t_x):
+                t_x = T
+                x_t = i
 
     elif is_number(user_input):
         x_v = eval(user_input)
         x_m = x_v
+        x_t = x_v
         v_x, m_x = solve_singularity(x_v)
+        T = torque(x_v)
         
     else:
         print("error in global_functions.find_shear_moment(): unknown input")
-        return find_shear_moment(loads_array, supports_array, BEAM_LENGTH)
+        return find_shear_moment(loads_array, supports_array, torques_array, BEAM_LENGTH, STEP)
     
-    return v_x, m_x, x_v, x_m
+    if x_v == STEP:
+        x_v = 0
+    
+    if x_t == STEP:
+        x_t = 0
+
+    if x_m == STEP:
+        x_m = 0
+
+    return v_x, m_x, t_x, x_v, x_m, x_t
 
 
 def macaulay(x, a, exp):
@@ -84,13 +117,14 @@ def is_number(s):
     except ValueError:
         return False
 
-def calculate_stresses(shear_force, bending_moment):
+def calculate_stresses(shear_force, bending_moment, T):
     I = 0
+    J = 0
     c = 0
 
     shear_stress = 0
 
-    shape_input = input("enter the cross section 'rectangular' or 'circular' ")
+    shape_input = input("enter the cross section 'rectangular (no torques)' or 'circular' ")
     if shape_input == "rectangular":
         base_input = input("enter the base of the rectangle (m) ")
         if is_number(base_input):
@@ -128,9 +162,11 @@ def calculate_stresses(shear_force, bending_moment):
             calculate_stresses(shear_force, bending_moment)
 
         I = (np.pi / 64) * (pow(outer, 4) - pow(inner, 4))
+        J = 2*I
         c = outer / 2
         if inner == 0:
             shear_stress = 4 * shear_force / (3 * np.pi * pow(outer/2, 2))
+            shear_stress += T * c / J
         else:
             shear_stress = 2 * shear_force / (np.pi * (pow(outer/2, 2) - pow(inner/2, 2)))
 

@@ -1,4 +1,4 @@
-def solve_reactions(supports_array = [], loads_array = []):
+def solve_reactions(supports_array = [], loads_array = [], torques_array = []):
     
     if supports_array[0].type == "fixed":
         #sum forces
@@ -14,6 +14,10 @@ def solve_reactions(supports_array = [], loads_array = []):
             sum_moments += load.moment
             sum_moments -= load.force * load.centroid
         supports_array[0].moment = -1 * sum_moments
+
+        #torques
+        for torque in torques_array:
+            supports_array[0].torque -= torque.magnitude
     
         return supports_array
 
